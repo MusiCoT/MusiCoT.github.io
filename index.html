@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="generator" content="Hugo 0.88.1" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">
+	<link rel="stylesheet" href="css/custom.css">
+	<link rel="stylesheet" href="css/normalize.css">
+
+	<title>MusiCoT</title>
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body data-new-gr-c-s-check-loaded="14.1091.0" data-gr-ext-installed="">
+
+<div class="container" >
+<header role="banner">
+</header>
+<main role="main">
+<article itemscope itemtype="https://schema.org/BlogPosting">
+
+<div class="container pt-5 mt-5 shadow p-5 mb-5 bg-white rounded">
+	<div class="text-center">
+	<h1>MusiCoT:</h1>
+        <h3>Analyzable Chain-of-Musical-Thought Prompting for High-Fidelity Music Generation</h3>
+		[<a href="">Paper</a>] (Coming soon)
+        <p class="fst-italic mb-0">
+			<br>
+			Max W. Y. Lam*†, Yijin Xing*, Weiya You, Jingcheng Wu, Zongyu Yin,
+			<br>
+			Fuqiang Jiang, Hangyu Liu, Feng Liu, Xingda Li, Wei-Tsung Lu, Hanyu Chen,
+			<br>
+			Tong Feng, Tianwei Zhao, Chien-Hung Liu, Xuchen Song†, Yang Li, Yahui Zhou
+			<br>
+			<p></p>
+        </p>
+        <p><b>Kunlun Inc.</b></p>
+		*: Equal Contribution
+		<br>
+		†: Corresponding author
+		<br>
+		<br>
+	</div>
+	<p>
+        <b>Abstract.</b> <br>
+		Autoregressive (AR) models have demonstrated impressive capabilities in generating high-fidelity music. However, the conventional next-token prediction approach paradigm in AR models does not align with the human creative process in music composition, potentially compromising the musicality of generated samples.
+		To overcome this limitation, we introduce MusiCoT, a groundbreaking chain-of-thought (CoT) prompting technique tailored for music generation. MusiCoT empowers the AR model to first outline an overall music structure before generating audio tokens, thereby enhancing the coherence and creativity of the resulting compositions. By leveraging the contrastive language-audio pretraining (CLAP) model, we establish a chain of "musical thoughts", making MusiCoT scalable and independent of human-labeled data, in contrast to conventional CoT methods.
+		Moreover, MusiCoT allows for in-depth analysis of music structure, such as instrumental arrangements, and supports music referencing -- accepting variable-length audio inputs as optional style references. This innovative approach effectively addresses copying issues, positioning MusiCoT as a vital practical method for music prompting.
+		Our experimental results indicate that MusiCoT consistently achieves superior performance across both objective and subjective metrics, producing music quality that competes with state-of-the-art generation models.
+		<br>
+		<!-- <br>
+			This page is <b> for research demonstration purposes </b> only.
+		<br> -->
+      </p>
+</div>
+		
+<div class="container pt-5 mt-5 shadow p-5 mb-5 bg-white rounded">		
+	<h2 id="model-overview" style="text-align: center;">Overview of MusiCoT</h2>
+	<p>
+		MusiCoT is a novel chain-of-thought prompting technique designed for high-fidelity music generation, which aligns the autoregressive model's creative process with human-like musical thought by deriving an overall music structure before generating audio tokens.
+	</p>
+	<body>
+		<p style="text-align: center;">
+			<img src="pics/MusiCoT-idea.png" width="800">
+		</p>
+	</body>
+	<p>
+	 By leveraging the contrastive language-audio pretraining (CLAP) model, MusiCoT enhances structural analyzability and supports music referencing, resulting in superior generation performance compared to traditional music generation models.
+	</p>
+	<body>
+		<p style="text-align: center;">
+			<img src="pics/MusiCoT-tokens.png" width="600">
+		</p>
+	</body>
+
+
+</div>
+
+<div class="container pt-5 mt-5 shadow p-5 mb-5 bg-white rounded">
+	<h2 id="sr-samples" style="text-align: center;">Generation Samples</h2>
+		<p style="text-align: center;">In this section, we provide 10 randomly picked samples (no cherry-picking) out of the 100 songs for the comparison of different music generators.</p>
+		<div class="table-responsive pt-3">
+			<table class="table table-hover pt-2">
+			<thead>
+				<tr>
+				<th style="text-align: center;vertical-align:middle;">Lyrics</th>
+				<th style="text-align: center;vertical-align:middle;">Music Generator</th>
+				<th style="text-align: center;vertical-align:middle;">Sample</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+				<td rowspan="6" style="text-align: center;vertical-align:middle;">
+					<div>
+					<iframe style="margin-left: 80px; text-align: center;vertical-align:middle;" height="600" width="300" frameborder="0" id="5.txt" src="examples/music_generation/5.txt"></iframe>
+				    <script>
+				        setInterval(()=>{ 
+				            document.getElementById("5.txt").contentWindow.location.reload();
+				         },1000);
+				    </script>
+				    </div>
+				</td>
+				<td style="text-align: center;vertical-align:middle;">Base model w/ <b>MusiCoT</b></td>
+				<td style="text-align: center;vertical-align:middle;">
+				<audio controls="controls" preload="none" src="examples/music_generation/musicot_5.mp3"></audio>
+				</td>
+				</tr>
+				<tr>
+				<td style="text-align: center;vertical-align:middle;">Base model w/o <b>MusiCoT</b></td>
+				<td style="text-align: center;vertical-align:middle;">
+				<audio controls="controls" preload="none" src="examples/music_generation/baseline_5.mp3"></audio>
+				</td>
+				</tr>
+				<tr>
+				<td style="text-align: center;vertical-align:middle;">YuE</td>
+				<td style="text-align: center;vertical-align:middle;">
+				<audio controls="controls" preload="none" src="examples/music_generation/yue_5.mp3"></audio>
+				</td>
+				</tr>
+				<tr>
+				<td style="text-align: center;vertical-align:middle;">Suno V4</td>
+				<td style="text-align: center;vertical-align:middle;">
+				<audio controls="controls" preload="none" src="examples/music_generation/suno_5.mp3"></audio>
+				</td>
+				</tr>
+				<tr>
+				<td style="text-align: center;vertical-align:middle;">Udio V1.5</td>
+				<td style="text-align: center;vertical-align:middle;">
+				<audio controls="controls" preload="none" src="examples/music_generation/udio_5.mp3"></audio>
+				</td>
+				</tr>
+				<tr>
+				<td style="text-align: center;vertical-align:middle;">Mureka V5.5</td>
+				<td style="text-align: center;vertical-align:middle;">
+				<audio controls="controls" preload="none" src="examples/music_generation/mureka_5.mp3"></audio>
+				</td>
+				</tr>
+
+
+
+
+                <tr>
+                <td rowspan="6" style="text-align: center;vertical-align:middle;">
+                    <div>
+                    <iframe style="margin-left: 80px; text-align: center;vertical-align:middle;" height="600" width="300" frameborder="0" id="7.txt" src="examples/music_generation/7.txt"></iframe>
+                    <script>
+                        setInterval(()=>{ 
+                            document.getElementById("7.txt").contentWindow.location.reload();
+                         },1000);
+                    </script>
+                    </div>
+                </td>
+                <td style="text-align: center;vertical-align:middle;">Base model w/ <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/musicot_7.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Base model w/o <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/baseline_7.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">YuE</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/yue_7.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Suno V4</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/suno_7.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Udio V1.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/udio_7.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Mureka V5.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/mureka_7.mp3"></audio>
+                </td>
+                </tr>
+
+
+
+                <tr>
+                <td rowspan="6" style="text-align: center;vertical-align:middle;">
+                    <div>
+                    <iframe style="margin-left: 80px; text-align: center;vertical-align:middle;" height="600" width="300" frameborder="0" id="44.txt" src="examples/music_generation/44.txt"></iframe>
+                    <script>
+                        setInterval(()=>{ 
+                            document.getElementById("44.txt").contentWindow.location.reload();
+                         },1000);
+                    </script>
+                    </div>
+                </td>
+                <td style="text-align: center;vertical-align:middle;">Base model w/ <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/musicot_44.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Base model w/o <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/baseline_44.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">YuE</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/yue_44.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Suno V4</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/suno_44.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Udio V1.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/udio_44.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Mureka V5.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/mureka_44.mp3"></audio>
+                </td>
+                </tr>
+
+
+
+                <tr>
+                <td rowspan="6" style="text-align: center;vertical-align:middle;">
+                    <div>
+                    <iframe style="margin-left: 80px; text-align: center;vertical-align:middle;" height="600" width="300" frameborder="0" id="49.txt" src="examples/music_generation/49.txt"></iframe>
+                    <script>
+                        setInterval(()=>{ 
+                            document.getElementById("49.txt").contentWindow.location.reload();
+                         },1000);
+                    </script>
+                    </div>
+                </td>
+                <td style="text-align: center;vertical-align:middle;">Base model w/ <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/musicot_49.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Base model w/o <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/baseline_49.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">YuE</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/yue_49.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Suno V4</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/suno_49.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Udio V1.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/udio_49.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Mureka V5.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/mureka_49.mp3"></audio>
+                </td>
+                </tr>
+
+
+
+                <tr>
+                <td rowspan="6" style="text-align: center;vertical-align:middle;">
+                    <div>
+                    <iframe style="margin-left: 80px; text-align: center;vertical-align:middle;" height="600" width="300" frameborder="0" id="50.txt" src="examples/music_generation/50.txt"></iframe>
+                    <script>
+                        setInterval(()=>{ 
+                            document.getElementById("50.txt").contentWindow.location.reload();
+                         },1000);
+                    </script>
+                    </div>
+                </td>
+                <td style="text-align: center;vertical-align:middle;">Base model w/ <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/musicot_50.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Base model w/o <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/baseline_50.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">YuE</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/yue_50.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Suno V4</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/suno_50.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Udio V1.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/udio_50.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Mureka V5.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/mureka_50.mp3"></audio>
+                </td>
+                </tr>
+
+
+
+                <tr>
+                <td rowspan="6" style="text-align: center;vertical-align:middle;">
+                    <div>
+                    <iframe style="margin-left: 80px; text-align: center;vertical-align:middle;" height="600" width="300" frameborder="0" id="58.txt" src="examples/music_generation/58.txt"></iframe>
+                    <script>
+                        setInterval(()=>{ 
+                            document.getElementById("58.txt").contentWindow.location.reload();
+                         },1000);
+                    </script>
+                    </div>
+                </td>
+                <td style="text-align: center;vertical-align:middle;">Base model w/ <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/musicot_58.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Base model w/o <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/baseline_58.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">YuE</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/yue_58.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Suno V4</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/suno_58.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Udio V1.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/udio_58.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Mureka V5.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/mureka_58.mp3"></audio>
+                </td>
+                </tr>
+
+
+
+                <tr>
+                <td rowspan="6" style="text-align: center;vertical-align:middle;">
+                    <div>
+                    <iframe style="margin-left: 80px; text-align: center;vertical-align:middle;" height="600" width="300" frameborder="0" id="71.txt" src="examples/music_generation/71.txt"></iframe>
+                    <script>
+                        setInterval(()=>{ 
+                            document.getElementById("71.txt").contentWindow.location.reload();
+                         },1000);
+                    </script>
+                    </div>
+                </td>
+                <td style="text-align: center;vertical-align:middle;">Base model w/ <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/musicot_71.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Base model w/o <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/baseline_71.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">YuE</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/yue_71.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Suno V4</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/suno_71.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Udio V1.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/udio_71.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Mureka V5.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/mureka_71.mp3"></audio>
+                </td>
+                </tr>
+
+
+
+                <tr>
+                <td rowspan="6" style="text-align: center;vertical-align:middle;">
+                    <div>
+                    <iframe style="margin-left: 80px; text-align: center;vertical-align:middle;" height="600" width="300" frameborder="0" id="84.txt" src="examples/music_generation/84.txt"></iframe>
+                    <script>
+                        setInterval(()=>{ 
+                            document.getElementById("84.txt").contentWindow.location.reload();
+                         },1000);
+                    </script>
+                    </div>
+                </td>
+                <td style="text-align: center;vertical-align:middle;">Base model w/ <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/musicot_84.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Base model w/o <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/baseline_84.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">YuE</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/yue_84.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Suno V4</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/suno_84.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Udio V1.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/udio_84.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Mureka V5.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/mureka_84.mp3"></audio>
+                </td>
+                </tr>
+
+
+
+                <tr>
+                <td rowspan="6" style="text-align: center;vertical-align:middle;">
+                    <div>
+                    <iframe style="margin-left: 80px; text-align: center;vertical-align:middle;" height="600" width="300" frameborder="0" id="86.txt" src="examples/music_generation/86.txt"></iframe>
+                    <script>
+                        setInterval(()=>{ 
+                            document.getElementById("86.txt").contentWindow.location.reload();
+                         },1000);
+                    </script>
+                    </div>
+                </td>
+                <td style="text-align: center;vertical-align:middle;">Base model w/ <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/musicot_86.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Base model w/o <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/baseline_86.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">YuE</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/yue_86.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Suno V4</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/suno_86.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Udio V1.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/udio_86.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Mureka V5.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/mureka_86.mp3"></audio>
+                </td>
+                </tr>
+
+
+
+                <tr>
+                <td rowspan="6" style="text-align: center;vertical-align:middle;">
+                    <div>
+                    <iframe style="margin-left: 80px; text-align: center;vertical-align:middle;" height="600" width="300" frameborder="0" id="96.txt" src="examples/music_generation/96.txt"></iframe>
+                    <script>
+                        setInterval(()=>{ 
+                            document.getElementById("96.txt").contentWindow.location.reload();
+                         },1000);
+                    </script>
+                    </div>
+                </td>
+                <td style="text-align: center;vertical-align:middle;">Base model w/ <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/musicot_96.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Base model w/o <b>MusiCoT</b></td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/baseline_96.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">YuE</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/yue_96.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Suno V4</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/suno_96.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Udio V1.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/udio_96.mp3"></audio>
+                </td>
+                </tr>
+                <tr>
+                <td style="text-align: center;vertical-align:middle;">Mureka V5.5</td>
+                <td style="text-align: center;vertical-align:middle;">
+                <audio controls="controls" preload="none" src="examples/music_generation/mureka_96.mp3"></audio>
+                </td>
+                </tr>
+			</tbody>
+			</table>
+		</div>
+</div>
+
+</article>
+</main>
+</div>
+
+</body>
+</html>
