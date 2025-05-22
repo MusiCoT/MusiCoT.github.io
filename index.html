@@ -27,26 +27,7 @@
 	<div class="text-center">
 	<h1>MusiCoT:</h1>
         <h3>Analyzable Chain-of-Musical-Thought Prompting for High-Fidelity Music Generation</h3>
-		[<a href="MusiCoT_paper.pdf">Paper</a>]
-        <p class="fst-italic mb-0">
-			<br>
-			Max W. Y. Lam*†, Yijin Xing*, Weiya You, Jingcheng Wu, Zongyu Yin,
-			<br>
-			Fuqiang Jiang, Hangyu Liu, Feng Liu, Xingda Li, Wei-Tsung Lu, Hanyu Chen,
-			<br>
-			Tong Feng, Tianwei Zhao, Chien-Hung Liu, Xuchen Song†, Yang Li, Yahui Zhou
-			<br>
-			<p></p>
-        </p>
-        <p><b>Skywork AI</b></p>
-		*: Equal Contribution
 		<br>
-		†: Corresponding author
-		<br>
-		<br>
-	</div>
-	<p>
-        <b>Abstract.</b> <br>
 		Autoregressive (AR) models have demonstrated impressive capabilities in generating high-fidelity music. However, the conventional next-token prediction paradigm in AR models does not align with the human creative process in music composition, potentially compromising the musicality of generated samples.
 To overcome this limitation, we introduce MusiCoT, a novel chain-of-thought (CoT) prompting technique tailored for music generation. MusiCoT empowers the AR model to first outline an overall music structure before generating audio tokens, thereby enhancing the coherence and creativity of the resulting compositions. By leveraging the contrastive language-audio pretraining (CLAP) model, we establish a chain of "musical thoughts", making MusiCoT scalable and independent of human-labeled data, in contrast to conventional CoT methods.
 Moreover, MusiCoT allows for in-depth analysis of music structure, such as instrumental arrangements, and supports music referencing -- accepting variable-length audio inputs as optional style references. This innovative approach effectively addresses copying issues, positioning MusiCoT as a vital practical method for music prompting.
